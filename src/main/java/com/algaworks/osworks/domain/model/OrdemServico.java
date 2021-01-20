@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.algaworks.osworks.domain.exception.NegocioException;
+
 @Entity
 public class OrdemServico {
 
@@ -109,6 +111,23 @@ public class OrdemServico {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+	
+	public boolean podeSerFinalizada() {
+		return StatusOrdemServico.ABERTA.equals(getStatus());
+	}
+	
+	public boolean naoPodeSerFinalizada() {
+		return !podeSerFinalizada();
+	}
+
+	public void finalizar() {
+		if (naoPodeSerFinalizada()) {
+			throw new NegocioException("Ordem de serviço não pode ser finalizada.");
+		}
+		
+		setStatus(StatusOrdemServico.FINALIZADA);
+		setDataFinalizacao(OffsetDateTime.now());
 	}
 
 }
