@@ -1,6 +1,7 @@
 package com.algaworks.osworks.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -66,6 +67,17 @@ public class ClienteController {
 	@GetMapping
 	public List<Cliente> listar() {
 		return clienteRepository.findAll();
+	}
+	
+	@GetMapping("/{clienteId}")
+	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
+		Optional<Cliente> cliente = clienteRepository.findById(clienteId);
+	
+		if (cliente.isPresent()) {
+			return ResponseEntity.ok(cliente.get());
+		}
+		
+		return ResponseEntity.notFound().build();
 	}
 	
 }
