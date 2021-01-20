@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.algaworks.osworks.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.osworks.domain.model.Cliente;
+import com.algaworks.osworks.domain.model.Comentario;
 import com.algaworks.osworks.domain.model.OrdemServico;
 import com.algaworks.osworks.domain.model.StatusOrdemServico;
 import com.algaworks.osworks.domain.repository.ClienteRepository;
+import com.algaworks.osworks.domain.repository.ComentarioRepository;
 import com.algaworks.osworks.domain.repository.OrdemServicoRepository;
 
 @Service
@@ -20,6 +22,9 @@ public class GestaoOrdemServicoService {
 	
 	@Autowired
 	private ClienteRepository clienteRepository;
+	
+	@Autowired
+	private ComentarioRepository comentarioRepository;
 	
 	public OrdemServico cadastrar(OrdemServico ordemServico) {
 		Cliente cliente = clienteRepository.findById(ordemServico.getCliente().getId())
@@ -38,12 +43,22 @@ public class GestaoOrdemServicoService {
 		ordemServico.finalizar();
 		
 		ordemServicoRepository.save(ordemServico);
-		
 	}
 
 	private OrdemServico buscar(Long ordemServicoId) {
 		return ordemServicoRepository.findById(ordemServicoId)
 				.orElseThrow(() -> new EntidadeNaoEncontradaException("Ordem de serviço não localizada"));
+	}
+	
+	public Comentario adicionarComentario(Long ordemServicoId, String descricao) {
+		OrdemServico ordemServico = buscar(ordemServicoId);
+		
+		Comentario comentario = new Comentario();
+		comentario.setOrdemServico(ordemServico);
+		comentario.setDescricao(descricao);
+		comentario.setDataEnvio(OffsetDateTime.now());
+		
+		return comentarioRepository.save(comentario);
 	}
 	
 }
