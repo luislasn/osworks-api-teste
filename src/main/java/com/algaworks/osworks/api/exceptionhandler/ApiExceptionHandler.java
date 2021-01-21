@@ -12,13 +12,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.algaworks.osworks.domain.exception.EntidadeNaoEncontradaException;
 
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@Autowired
 	private MessageSource messageSource;
+	
+	@ExceptionHandler(EntidadeNaoEncontradaException.class)
+	protected ResponseEntity<Object> handleEntidadeNaoEncontradaException(
+			EntidadeNaoEncontradaException ex, WebRequest request) {
+		
+		var status = HttpStatus.NOT_FOUND;
+		
+		var problema = new Problema();
+		problema.setStatus(status.value());
+		problema.setTitulo(ex.getMessage());
+		problema.setDataHora(OffsetDateTime.now());
+		
+		return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
+	}
 	
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
